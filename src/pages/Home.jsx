@@ -1,5 +1,6 @@
-import { useEffect } from "react";
-import { useRecipesContext } from "../hooks/useRecipesContext";
+import { useEffect } from "react"
+import { useRecipesContext } from "../hooks/useRecipesContext"
+import { useAuthContext } from '../hooks/useAuthContext'
 
 // components
 import RecipeDetails from '../components/RecipeDetails'
@@ -7,10 +8,15 @@ import RecipeForm from '../components/RecipeForm'
 
 const Home = () => {
   const {recipes, dispatch} = useRecipesContext()
+  const {user} = useAuthContext()
 
   useEffect(() => {
     const fetchRecipes = async () => {
-      const response = await fetch("http://localhost:4000/api/recipes");
+      const response = await fetch("http://localhost:4000/api/recipes", {
+        headers: {
+          'Authorization': `Bearer ${user.token}`
+        }
+      });
       const json = await response.json();
 
       if (response.ok) {
@@ -18,8 +24,10 @@ const Home = () => {
       }
     };
 
-    fetchRecipes();
-  }, [dispatch]);
+    if (user) {
+      fetchRecipes()
+    }
+  }, [dispatch, user]);
 
   return (
     <div className="home">

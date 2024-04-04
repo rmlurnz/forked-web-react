@@ -1,8 +1,10 @@
 import { useState } from "react"
 import { useRecipesContext } from "../hooks/useRecipesContext";
+import { useAuthContext } from "../hooks/useAuthContext";
 
 const RecipeForm = () => {
   const { dispatch } = useRecipesContext()
+  const { user } = useAuthContext()
 
   const [title, setTitle] = useState('')
   const [description, setdescription] = useState('')
@@ -11,6 +13,11 @@ const RecipeForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+
+    if (!user) {
+      setError('You must be logged in')
+      return
+    }
     
     const recipe = {title, description}
 
@@ -18,7 +25,8 @@ const RecipeForm = () => {
       method: 'POST',
       body:JSON.stringify(recipe),
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${user.token}`
       }
     })
     const json = await response.json()
